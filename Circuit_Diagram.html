@@ -13,15 +13,15 @@
 <body>
 
 <div id="demo">
-
 </div>
+
 <script type="text/javascript">
     var graph=new joint.dia.Graph;
 
-    var ConstraintElementView = joint.dia.ElementView.extend({
+    var ElementView = joint.dia.ElementView.extend({
         pointermove: function(evt, x, y) {}
     });
-//    var ConstraintLinkView = joint.dia.LinkView.extend({
+//    var LinkView = joint.dia.LinkView.extend({
 //        addVertex: function(evt, x, y) {},
 //        removeVertex: function(endType) {},
 //        pointerdown:function(evt, x, y) {}
@@ -34,8 +34,8 @@
         gridSize:10,
         perpendicularLinks:false,
         model:graph,
-        elementView: ConstraintElementView
-//        linkView:ConstraintLinkView
+        elementView: ElementView
+//        linkView:LinkView
     });
     paper.$el.css('pointer-events', 'none');
 
@@ -102,6 +102,7 @@
     });
 
     var Switch=new joint.shapes.basic.Switch({position: { x: 200, y: 400 },attrs: {'rect': { id: 'switch' }}});
+    
     joint.shapes.basic.PowerSupply = joint.shapes.basic.Generic.extend({
         markup: '<g class="rotatable"><g class="scalable"><rect class="body"/><line class="power_line1"/><line class="power_line2"/></g></g>',
         defaults: joint.util.deepSupplement({
