@@ -68,7 +68,7 @@
     //定义遮罩
     var mask=V('mask', { maskUnits: 'userSpaceOnUse', x: '400',y:'125',width:'400',height:'250',id:"MaskA" }).append(V('circle', {  cx: '525',cy:'250',r:'125',fill:"#ffffff" }));
 
-    //定义图形模板对象，里面包含两个首尾相连的地球平面图
+    //定义图形模板，里面包含两个首尾相连的地球平面图
     img1= V('image', { 'xlink:href': "images/terra.jpg", x: 0, y: 125,'width': 400,'height': 250,'preserveAspectRatio':'none slice'});
     img2= V('image', { 'xlink:href': "images/terra.jpg", x: 399, y: 125,'width': 400,'height': 250,'preserveAspectRatio':'none slice'});
     var symbol=V('symbol', { id:"image_earth",viewBox:"0,125,800,250"}).append(img1.node).append(img2.node);
