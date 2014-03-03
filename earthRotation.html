@@ -1,0 +1,123 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>地球自转</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="css/joint.css" />
+    <script src="js/joint.js"></script>
+</head>
+<body>
+<div>
+    <div id="demo" class="border: 1px solid lightgray;display: inline-block;overflow: hidden;">
+    </div>
+</div>
+<script>
+    var graph=new joint.dia.Graph;
+
+    var paper=new joint.dia.Paper({
+        el:$("#demo"),
+        width:960,
+        height:500,
+        gridSize:10,
+        perpendicularLinks:true,
+        model:graph
+    });
+
+    paper.$el.css('pointer-events', 'none');
+
+    joint.shapes.basic.Img = joint.shapes.basic.Generic.extend({
+        markup: '<g class="rotatable"><g class="scalable"><image/></g></g><text/>',
+        defaults: joint.util.deepSupplement({
+            type: 'basic.Img',
+            angle: 0,
+            attrs: {
+                text: {
+                    'text': '',
+                    'font-size': 40,
+                    'font-weight': 900,
+                    'ref-x': .5,
+                    'ref-y': -20,
+                    'y-alignment': 'middle',
+                    'text-anchor': 'middle',
+                    'ref': 'image',
+                    'fill': 'white',
+                    'stroke-width': '2px',
+                    'stroke': 'black',
+                    'opacity': 0,
+                    'pointer-events': 'none'
+                },
+                image: {
+                    'width': 150,
+                    'height': 150,
+                    'preserveAspectRatio':'none slice'
+                }
+            }
+        }, joint.shapes.basic.Generic.prototype.defaults)
+    });
+
+    var backgroundImg=new joint.shapes.basic.Img({
+        bounciness: 1.0,
+        angle: 0,
+        position: { x: 0, y: 0 },
+        size: { width: 960, height: 500 },
+        attrs: { image: { 'xlink:href': "images/espaco.jpg"}}
+    });
+
+    graph.addCell([backgroundImg]);
+
+    //定义遮罩
+    var mask=V('mask', { maskUnits: 'userSpaceOnUse', x: '400',y:'125',width:'400',height:'250',id:"MaskA" }).append(V('circle', {  cx: '525',cy:'250',r:'125',fill:"#ffffff" }));
+
+    //定义图形模板对象，里面包含两个首尾相连的地球平面图
+    img1= V('image', { 'xlink:href': "images/terra.jpg", x: 0, y: 125,'width': 400,'height': 250,'preserveAspectRatio':'none slice'});
+    img2= V('image', { 'xlink:href': "images/terra.jpg", x: 399, y: 125,'width': 400,'height': 250,'preserveAspectRatio':'none slice'});
+    var symbol=V('symbol', { id:"image_earth",viewBox:"0,125,800,250"}).append(img1.node).append(img2.node);
+
+    //将预设的mask和symbol添加到svg的defs中
+    V(paper.svg).defs().append(mask).append(symbol);
+
+    //定义地球容器，通过使用遮罩mask，取到一个圆形的可见区域
+    var gEarth= V('g', {mask:"url(#MaskA)"});
+
+    //在gEarth中添加地球元素,并显示到paper上
+    var earth=V('use', {x: 300, y: 125,'width': 800,'height': 250,'preserveAspectRatio':'none slice','xlink:href': "#image_earth"});
+    gEarth.rotate(10,500,-500).append(earth.node);
+    $(paper.viewport).append(gEarth.node);
+
+    //设置定时任务，让地球动起来
+    chilun(5);
+    function chilun(sec){
+        var animate=V('animate',{attributeName:'x',attributeType:'XML',begin:'0s',dur:sec+'s',fill:'freeze',from:'0',to:'400',repeatCount:'1'});
+        earth.append(animate);
+        animate.node.beginElement();
+        return setInterval(function(){
+            var animate=V('animate',{attributeName:'x',attributeType:'XML',begin:'0s',dur:sec+'s',fill:'freeze',from:'0',to:'400',repeatCount:'1'});
+            earth.append(animate);
+            animate.node.beginElement();
+        },sec*1000);
+    }
+
+    //添加一个运动的行星
+    var link=new joint.dia.Link({
+        attrs: {'.connection': { stroke: 'none' }},
+        source: { x:50,y:500 },
+        target: { x:0,y:30},
+        vertices:[{x:800,y:270},{x:470,y:70}],
+        smooth:true
+    });
+    graph.addCell([link]);
+    c_to_b();
+    function c_to_b(){
+        star= V('circle', { r: 2, fill: '#ffffff'});
+        $(paper.viewport).append(star.node);
+        star.animateAlongPath({ dur: 3 + 's', repeatCount: 1 }, paper.findViewByModel(link).$('.connection')[0]);
+        return setInterval(function(){
+            star.animateAlongPath({ dur: 3 + 's', repeatCount: 1 }, paper.findViewByModel(link).$('.connection')[0]);
+        },6*1000);
+    }
+
+</script>
+
+</body>
+</html>
+
