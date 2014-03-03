@@ -1,0 +1,152 @@
+<html>
+<head>
+    <title>电路图</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="css/joint.css" />
+    <script src="js/joint.js"></script>
+    <style type="text/css">
+        #demo .switchRect{
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div id="demo">
+
+</div>
+<script type="text/javascript">
+    var graph=new joint.dia.Graph;
+
+    var ConstraintElementView = joint.dia.ElementView.extend({
+        pointermove: function(evt, x, y) {}
+    });
+//    var ConstraintLinkView = joint.dia.LinkView.extend({
+//        addVertex: function(evt, x, y) {},
+//        removeVertex: function(endType) {},
+//        pointerdown:function(evt, x, y) {}
+//    });
+
+    paper=new joint.dia.Paper({
+        el:$("#demo"),
+        width:800,
+        height:500,
+        gridSize:10,
+        perpendicularLinks:false,
+        model:graph,
+        elementView: ConstraintElementView
+//        linkView:ConstraintLinkView
+    });
+    paper.$el.css('pointer-events', 'none');
+
+    var link=new joint.dia.Link({
+        attrs: {
+            '.connection': { stroke: '#000000' },
+            '.marker-target': { d: 'M 10 0 L 0 5 L 10 10 z' }
+        },
+        source: { x:325,y:150},
+        target: {x:400,y:125},
+        vertices:[{x:100,y:150},{x:100,y:450},{x:700,y:450},{x:700,y:150},{x:600,y:150},{x:600,y:50},{x:400,y:50}]
+    });
+
+    var R=new joint.shapes.basic.Rect({
+        position: { x: 325, y: 125 },
+        size: { width: 150, height: 50 },
+        attrs: { rect: { fill: 'none', stroke: '#000000'}}
+    });
+    var A=new joint.shapes.basic.Circle({
+        size: { width: 80, height: 80 },
+        position: { x: 60, y: 260 },
+        attrs: {
+            'text':{text: 'A+', fill: 'black','font-size': 18}
+        }
+    });
+    //Bulb
+    var k=12.5*Math.pow(2,0.5);
+    joint.shapes.basic.Bulb = joint.shapes.basic.Generic.extend({
+        markup: '<g class="rotatable"><g class="scalable"><circle class="bulb_circle"/><line class="bulb_line1"/><line class="bulb_line2"/></g></g>',
+
+        defaults: joint.util.deepSupplement({
+            type: 'basic.Bulb',
+            size: { width: 50, height: 50 },
+            attrs: {
+                circle: { cx: 25, cy: 25,r:25, fill: 'white', stroke: 'black'},
+                '.bulb_line1':{
+                    stroke: 'black',x1:25-k,y1:25-k,x2:25+k,y2:25+k
+                },
+                '.bulb_line2':{
+                    stroke: 'black' ,x1:25-k,y1:25+k,x2:25+k,y2:25-k
+                }
+            }
+        }, joint.shapes.basic.Generic.prototype.defaults)
+    });
+    var Bulb=new joint.shapes.basic.Bulb({size: { width: 80, height: 80 },position: { x: 660, y: 260 }});
+
+    //switch
+    joint.shapes.basic.Switch = joint.shapes.basic.Generic.extend({
+        markup: '<g class="rotatable"><g class="scalable"><rect class="switchRect"/><line class="switch"/><circle class="switch_circle1"/><circle class="switch_circle2"/></g></g>',
+        defaults: joint.util.deepSupplement({
+            type: 'basic.Switch',
+            size: { width: 100, height: 60 ,a:'232',b:'343'},
+            attrs: {
+                rect:{width: 100, height: 60,'pointer-events':"auto"},
+                '.switch': { stroke: 'black',x1:5,y1:40,x2:90,y2:0},
+                '.switch_circle1':{
+                    stroke: 'black',cx:10,cy:50,r:10
+                },
+                '.switch_circle2':{
+                    stroke: 'black',cx:90,cy:50,r:10
+                }
+            }
+        }, joint.shapes.basic.Generic.prototype.defaults)
+    });
+
+    var Switch=new joint.shapes.basic.Switch({position: { x: 200, y: 400 },attrs: {'rect': { id: 'switch' }}});
+    joint.shapes.basic.PowerSupply = joint.shapes.basic.Generic.extend({
+        markup: '<g class="rotatable"><g class="scalable"><rect class="body"/><line class="power_line1"/><line class="power_line2"/></g></g>',
+        defaults: joint.util.deepSupplement({
+            type: 'basic.PowerSupply',
+            size: { width: 10, height: 100 },
+            attrs: {
+                '.body':{width: 10, height: 100},
+                '.power_line1': {x1:0,y1:0,x2:0,y2:100 },
+                '.power_line2': {x1:10,y1:10,x2:10,y2:90},
+                'line':{'stroke-width': 2, stroke: 'black'}
+            }
+        }, joint.shapes.basic.Generic.prototype.defaults)
+    });
+
+    var PowerSupply=new joint.shapes.basic.PowerSupply({size:{height:70},position: { x: 550, y: 415 }});
+
+    graph.addCell([link,R,Bulb,Switch,PowerSupply,A]);
+
+    $("#switch").click(function(){
+        if(Switch.attr('.switch/x2')==90){
+            //打开电灯
+            //闭合开关
+            Switch.attr({
+                '.switch': {x2:100,y2:40}
+            });
+            //电灯亮
+            Bulb.attr({
+                'circle': {fill:'yellow'}
+            });
+
+
+        }else{
+            //关闭电灯
+            //打开开关
+            Switch.attr({
+                '.switch': {x2:90,y2:0}
+            });
+            Bulb.attr({
+                'circle': {fill:'#ffffff'}
+            });
+        }
+    });
+    Switch.on('change:attrs', function(element) {
+        console.log(element.id, ':', element.get('attrs'));
+    });
+</script>
+</body>
+</html>
